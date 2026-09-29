@@ -2,7 +2,7 @@
 
 import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -112,6 +112,50 @@ function LoginForm() {
 
   return (
     <div className="min-h-[calc(100vh-140px)] flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      <AnimatePresence>
+        {loadingAction && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#07080d]/92 p-6 backdrop-blur-xl"
+            role="status"
+            aria-live="polite"
+            aria-label={loadingAction === 'google' ? 'Connecting to Google' : 'Authenticating'}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              className="relative flex w-full max-w-xs flex-col items-center overflow-hidden rounded-3xl border border-red-500/30 bg-[#10121b] px-8 py-9 text-center shadow-[0_24px_80px_rgba(220,38,38,0.28)]"
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(239,68,68,0.22),transparent_48%)]" />
+              <div className="relative mb-5 flex h-24 w-24 items-center justify-center">
+                <span className="absolute inset-0 rounded-full border-2 border-red-500/25" />
+                <span className="absolute inset-2 rounded-full border-2 border-transparent border-t-red-400 border-r-rose-500 animate-spin" />
+                <RecallLogo className="h-16 w-16" priority />
+              </div>
+              <p className="relative text-sm font-bold tracking-wide text-white">
+                {loadingAction === 'google' ? 'Connecting to Google' : 'Authenticating securely'}
+              </p>
+              <p className="relative mt-2 text-xs leading-relaxed text-slate-400">
+                {loadingAction === 'google'
+                  ? 'Opening your secure Google sign-in…'
+                  : 'Verifying your RECALL workspace…'}
+              </p>
+              <div className="relative mt-5 h-1 w-40 overflow-hidden rounded-full bg-red-950/70">
+                <motion.span
+                  animate={{ x: ['-110%', '210%'] }}
+                  transition={{ duration: 1.15, repeat: Infinity, ease: 'easeInOut' }}
+                  className="block h-full w-1/2 rounded-full bg-gradient-to-r from-red-500 via-rose-400 to-red-500"
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Background Effects */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/8 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
