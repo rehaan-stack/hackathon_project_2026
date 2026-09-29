@@ -55,6 +55,7 @@ export default function FeaturesPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    if (window.matchMedia('(max-width: 767px), (prefers-reduced-motion: reduce)').matches) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -231,12 +232,12 @@ export default function FeaturesPage() {
   return (
     <div className="relative overflow-hidden bg-[#07080c] text-white">
       {/* Particle Canvas Background */}
-      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-40" />
+      <canvas ref={canvasRef} className="public-particle-canvas fixed inset-0 pointer-events-none z-0 opacity-40" />
 
       {/* Atmospheric Ambient Glows */}
-      <div className="absolute top-0 right-1/4 w-[650px] h-[650px] bg-red-600/8 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute top-[45%] left-0 w-[450px] h-[450px] bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="public-page-ambient absolute top-0 right-1/4 w-[650px] h-[650px] bg-red-600/8 rounded-full blur-[160px] pointer-events-none" />
+      <div className="public-page-ambient absolute top-[45%] left-0 w-[450px] h-[450px] bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none" />
+      <div className="public-page-ambient absolute bottom-1/4 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[150px] pointer-events-none" />
 
       {/* ========================================================================= */}
       {/* 1. HERO SECTION & CATEGORY FILTER                                         */}

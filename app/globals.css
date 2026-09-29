@@ -318,6 +318,11 @@ body {
 /* ====== RESPONSIVE MOBILE TWEAKS ====== */
 
 @media (max-width: 768px) {
+  .public-particle-canvas { display: none; }
+
+  /* Reduce GPU-heavy decoration while preserving readable, touch-friendly UI. */
+  .public-page-ambient { display: none; }
+
   .card-premium:hover {
     transform: translateY(-2px);
   }

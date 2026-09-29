@@ -18,7 +18,7 @@ import {
   Globe,
   Zap,
 } from 'lucide-react';
-import { NeuralCoreIcon } from '@/components/icons/NeuralCoreIcon';
+import { RecallLogo } from '@/components/icons/RecallLogo';
 
 /* Animation helpers */
 const fadeUp = {
@@ -54,6 +54,7 @@ export default function AboutPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    if (window.matchMedia('(max-width: 767px), (prefers-reduced-motion: reduce)').matches) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -182,12 +183,12 @@ export default function AboutPage() {
   return (
     <div className="relative overflow-hidden bg-[#07080c] text-white">
       {/* Particle Background Canvas */}
-      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-40" />
+      <canvas ref={canvasRef} className="public-particle-canvas fixed inset-0 pointer-events-none z-0 opacity-40" />
 
       {/* Atmospheric Ambient Glows */}
-      <div className="absolute top-0 left-1/4 w-[650px] h-[650px] bg-red-600/8 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute top-[45%] right-0 w-[450px] h-[450px] bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-1/4 left-0 w-[450px] h-[450px] bg-indigo-500/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="public-page-ambient absolute top-0 left-1/4 w-[650px] h-[650px] bg-red-600/8 rounded-full blur-[160px] pointer-events-none" />
+      <div className="public-page-ambient absolute top-[45%] right-0 w-[450px] h-[450px] bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none" />
+      <div className="public-page-ambient absolute bottom-1/4 left-0 w-[450px] h-[450px] bg-indigo-500/5 rounded-full blur-[150px] pointer-events-none" />
 
       {/* ========================================================================= */}
       {/* 1. HERO SECTION WITH FUTURISTIC COGNITIVE HUB CARD                        */}
@@ -281,23 +282,9 @@ export default function AboutPage() {
                   </span>
                 </div>
 
-                {/* Central Futuristic Core Reactor */}
-                <div className="relative py-6 flex flex-col items-center justify-center">
-                  {/* Concentric rotating tech rings */}
-                  <div className="absolute w-[210px] h-[210px] rounded-full border border-red-500/15 border-dashed animate-spin pointer-events-none" style={{ animationDuration: '30s' }} />
-                  <div className="absolute w-[150px] h-[150px] bg-red-600/20 rounded-full blur-2xl pointer-events-none" />
-
-                  <motion.div
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                    className="relative group cursor-pointer"
-                  >
-                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-br from-[#ff2a55] via-[#e60a38] to-[#800018] flex items-center justify-center relative shadow-[0_15px_45px_rgba(255,32,82,0.5),inset_0_2px_10px_rgba(255,255,255,0.4)] border border-white/30 group-hover:scale-105 transition-transform duration-300">
-                      <NeuralCoreIcon className="w-14 h-14 sm:w-16 sm:h-16 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]" />
-                      <span className="w-3.5 h-3.5 rounded-full bg-emerald-400 absolute -top-1 -right-1 ring-4 ring-[#0c0f1c] shadow-[0_0_12px_#10b981] animate-pulse" />
-                    </div>
-                    <div className="w-20 h-4 bg-red-500/30 blur-lg mx-auto rounded-full mt-2" />
-                  </motion.div>
+                {/* Canonical memory-cube brand mark */}
+                <div className="relative flex items-center justify-center py-4 sm:py-6">
+                  <RecallLogo className="h-32 w-32 sm:h-36 sm:w-36" priority />
                 </div>
 
                 {/* Core Motto */}
