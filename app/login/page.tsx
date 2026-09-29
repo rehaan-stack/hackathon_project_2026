@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  getRedirectResult,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
   updateProfile,
 } from 'firebase/auth';
 import {
@@ -67,6 +69,26 @@ function LoginForm() {
     if (!res.ok) throw new Error(data.error || 'Unable to start a secure session.');
   };
 
+  useEffect(() => {
+    const completeMobileGoogleRedirect = async () => {
+      try {
+        const result = await getRedirectResult(getFirebaseAuth());
+        if (!result) return;
+
+        setLoadingAction('google');
+        await syncServerSession(await result.user.getIdToken(true));
+        router.replace(redirectUrl);
+        router.refresh();
+      } catch (err) {
+        setError(getAuthErrorMessage(err));
+      } finally {
+        setLoadingAction(null);
+      }
+    };
+
+    void completeMobileGoogleRedirect();
+  }, [redirectUrl, router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoadingAction('credentials');
@@ -95,18 +117,28 @@ function LoginForm() {
   const handleGoogleSignIn = async () => {
     setLoadingAction('google');
     setError(null);
+    let handingOffToGoogle = false;
 
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
-      const result = await signInWithPopup(getFirebaseAuth(), provider);
+      const auth = getFirebaseAuth();
+
+      if (window.matchMedia('(max-width: 767px)').matches) {
+        handingOffToGoogle = true;
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+
+      const result = await signInWithPopup(auth, provider);
       await syncServerSession(await result.user.getIdToken(true));
       router.replace(redirectUrl);
       router.refresh();
     } catch (err) {
+      handingOffToGoogle = false;
       setError(getAuthErrorMessage(err));
     } finally {
-      setLoadingAction(null);
+      if (!handingOffToGoogle) setLoadingAction(null);
     }
   };
 
@@ -119,7 +151,7 @@ function LoginForm() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#07080d]/92 p-6 backdrop-blur-xl"
+            className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#07080d]/95 p-5 sm:p-6 md:backdrop-blur-xl"
             role="status"
             aria-live="polite"
             aria-label={loadingAction === 'google' ? 'Connecting to Google' : 'Authenticating'}
@@ -128,12 +160,12 @@ function LoginForm() {
               initial={{ opacity: 0, scale: 0.92, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96 }}
-              className="relative flex w-full max-w-xs flex-col items-center overflow-hidden rounded-3xl border border-red-500/30 bg-[#10121b] px-8 py-9 text-center shadow-[0_24px_80px_rgba(220,38,38,0.28)]"
+              className="relative flex w-full max-w-xs flex-col items-center overflow-hidden rounded-3xl border border-red-500/30 bg-[#10121b] px-7 py-8 text-center shadow-[0_18px_48px_rgba(220,38,38,0.22)] sm:px-8 sm:py-9 sm:shadow-[0_24px_80px_rgba(220,38,38,0.28)]"
             >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(239,68,68,0.22),transparent_48%)]" />
               <div className="relative mb-5 flex h-24 w-24 items-center justify-center">
                 <span className="absolute inset-0 rounded-full border-2 border-red-500/25" />
-                <span className="absolute inset-2 rounded-full border-2 border-transparent border-t-red-400 border-r-rose-500 animate-spin" />
+                <span className="absolute inset-2 rounded-full border-2 border-transparent border-t-red-400 border-r-rose-500 md:animate-spin" />
                 <RecallLogo className="h-16 w-16" priority />
               </div>
               <p className="relative text-sm font-bold tracking-wide text-white">
@@ -144,7 +176,7 @@ function LoginForm() {
                   ? 'Opening your secure Google sign-in…'
                   : 'Verifying your RECALL workspace…'}
               </p>
-              <div className="relative mt-5 h-1 w-40 overflow-hidden rounded-full bg-red-950/70">
+              <div className="relative mt-5 hidden h-1 w-40 overflow-hidden rounded-full bg-red-950/70 sm:block">
                 <motion.span
                   animate={{ x: ['-110%', '210%'] }}
                   transition={{ duration: 1.15, repeat: Infinity, ease: 'easeInOut' }}
