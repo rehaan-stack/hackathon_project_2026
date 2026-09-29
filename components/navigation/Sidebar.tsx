@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -200,9 +201,9 @@ export function Sidebar() {
       </div>
 
       {/* Logout Confirmation Modal with smooth animations */}
-      {showLogoutModal && (
+      {showLogoutModal && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget && !isLoggingOut) setShowLogoutModal(false);
           }}
@@ -255,7 +256,7 @@ export function Sidebar() {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
       </aside>
     </>
   );
