@@ -2,7 +2,9 @@
 
 > **"Every incident teaches the next one how to resolve itself."**
 
-Built for **HackwithHyderabad 3.0**, **RECALL** is an autonomous AI incident-response platform that investigates production outages, recalls relevant historical postmortems using **Hindsight persistent memory**, recommends actionable remediation playbooks, and learns from the outcome of every incident to continuously improve future investigations.
+Built for **HackwithHyderabad 3.0**, **RECALL** is an autonomous AI incident-response platform that investigates production outages, recalls relevant historical postmortems using **Hindsight persistence**, and autonomously learns from every resolution.
+
+🚀 **[Live Demo](https://recall-ai-agent.onrender.com/)** — Try it now!
 
 ---
 
@@ -107,16 +109,16 @@ GEMINI_API_KEY=
 ANTHROPIC_API_KEY=
 ```
 
-> **Zero-Setup Fallback Note:** If external Hindsight credentials are not present, RECALL automatically activates its in-memory fallback provider (`DemoMemoryProvider`). The application remains 100% functional, responsive, and verifiable out of the box.
+> **Zero-Setup Fallback Note:** If external Hindsight credentials are not present, RECALL automatically activates its in-memory fallback provider (`DemoMemoryProvider`). The application remains fully functional for demonstration purposes.
 
 ### Firebase setup
 
 1. Create a Firebase project, register a **Web app**, and copy its configuration into the `NEXT_PUBLIC_FIREBASE_*` variables above.
 2. In **Authentication → Sign-in method**, enable **Email/Password** and **Google**. Add your local and production domains under **Authentication → Settings → Authorized domains**.
 3. Create a Cloud Firestore database. RECALL creates or updates a `users/{uid}` profile document after a successful sign-in.
-4. In Google Cloud IAM, create a Firebase Admin service-account key and set its project ID, client email, and private key in the three `FIREBASE_*` server-only variables. Do not commit these credentials.
+4. In Google Cloud IAM, create a Firebase Admin service-account key and set its project ID, client email, and private key in the three `FIREBASE_*` server-only variables. Do not commit these credentials to version control.
 
-The included [`firestore.rules`](firestore.rules) denies all direct browser access because profiles are written only through the Firebase Admin SDK. Deploy it with the Firebase CLI if this is the intended access model.
+The included [`firestore.rules`](firestore.rules) denies all direct browser access because profiles are written only through the Firebase Admin SDK. Deploy it with the Firebase CLI if this is the first time you've set up Firestore security rules.
 
 The browser receives only Firebase's public Web config. The server verifies each Firebase session cookie before using it, and the hard-coded demo account is not available.
 
