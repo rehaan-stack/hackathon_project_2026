@@ -1,15 +1,13 @@
 'use client';
 
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  getRedirectResult,
   signInWithEmailAndPassword,
   signInWithPopup,
-  signInWithRedirect,
   updateProfile,
 } from 'firebase/auth';
 import {
@@ -48,7 +46,10 @@ function getAuthErrorMessage(error: unknown) {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get('redirect') || '/dashboard';
+  const requestedRedirectUrl = searchParams.get('redirect') || '/dashboard';
+  const redirectUrl = requestedRedirectUrl.startsWith('/') && !requestedRedirectUrl.startsWith('//')
+    ? requestedRedirectUrl
+    : '/dashboard';
   const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
 
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
@@ -69,26 +70,6 @@ function LoginForm() {
     if (!res.ok) throw new Error(data.error || 'Unable to start a secure session.');
   };
 
-  useEffect(() => {
-    const completeMobileGoogleRedirect = async () => {
-      try {
-        const result = await getRedirectResult(getFirebaseAuth());
-        if (!result) return;
-
-        setLoadingAction('google');
-        await syncServerSession(await result.user.getIdToken(true));
-        router.replace(redirectUrl);
-        router.refresh();
-      } catch (err) {
-        setError(getAuthErrorMessage(err));
-      } finally {
-        setLoadingAction(null);
-      }
-    };
-
-    void completeMobileGoogleRedirect();
-  }, [redirectUrl, router]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoadingAction('credentials');
@@ -105,8 +86,7 @@ function LoginForm() {
       }
 
       await syncServerSession(await result.user.getIdToken(true));
-      router.replace(redirectUrl);
-      router.refresh();
+      window.location.assign(redirectUrl);
     } catch (err) {
       setError(getAuthErrorMessage(err));
     } finally {
@@ -117,28 +97,18 @@ function LoginForm() {
   const handleGoogleSignIn = async () => {
     setLoadingAction('google');
     setError(null);
-    let handingOffToGoogle = false;
 
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       const auth = getFirebaseAuth();
-
-      if (window.matchMedia('(max-width: 767px)').matches) {
-        handingOffToGoogle = true;
-        await signInWithRedirect(auth, provider);
-        return;
-      }
-
       const result = await signInWithPopup(auth, provider);
       await syncServerSession(await result.user.getIdToken(true));
-      router.replace(redirectUrl);
-      router.refresh();
+      window.location.assign(redirectUrl);
     } catch (err) {
-      handingOffToGoogle = false;
       setError(getAuthErrorMessage(err));
     } finally {
-      if (!handingOffToGoogle) setLoadingAction(null);
+      setLoadingAction(null);
     }
   };
 
