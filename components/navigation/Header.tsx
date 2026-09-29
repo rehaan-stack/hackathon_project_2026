@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Activity, Bell, Check, ChevronDown, LoaderCircle, LogOut, PlayCircle, Settings } from 'lucide-react';
 import { HeaderSearchBar } from './HeaderSearchBar';
 import { signOut } from 'firebase/auth';
@@ -19,6 +20,7 @@ export function Header() {
   const [notifications, setNotifications] = useState<Array<{ id: string; message: string; created_at: string }>>([]);
   const [notificationsLoading, setNotificationsLoading] = useState(true);
   const [hasUnread, setHasUnread] = useState(true);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const controlsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,13 +66,15 @@ export function Header() {
   };
 
   const handleSignOut = async () => {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
     try {
       await signOut(getFirebaseAuth());
     } catch {
       // The server session still needs to be cleared if Firebase is unavailable.
     }
     await fetch('/api/auth/logout', { method: 'POST' });
-    router.replace('/login');
+    window.location.assign('/login');
   };
 
   const getInitials = (name: string) => {
@@ -130,9 +134,10 @@ export function Header() {
         )}
 
         {/* User Profile */}
-        <button onClick={() => { setAccountOpen((open) => !open); setNotificationsOpen(false); }} aria-expanded={accountOpen} className="flex items-center gap-2.5 border-l border-[#1c2230] pl-1 text-left sm:pl-2">
-          <div className="w-8 h-8 rounded-full bg-[#1e2433] border border-[#2a344a] flex items-center justify-center text-xs font-semibold text-white">
+        <button onClick={() => { setAccountOpen((open) => !open); setNotificationsOpen(false); }} aria-expanded={accountOpen} aria-haspopup="menu" aria-controls="account-menu" className="group flex items-center gap-2.5 rounded-xl border-l border-[#1c2230] py-1 pl-1 text-left transition-colors hover:bg-[#111621] sm:pl-2">
+          <div className="relative flex h-8 w-8 items-center justify-center rounded-full border border-red-500/30 bg-gradient-to-br from-red-500/30 to-[#1e2433] text-xs font-semibold text-white shadow-[0_0_14px_rgba(239,68,68,0.15)]">
             {getInitials(user.full_name)}
+            <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#08090d] bg-emerald-400" />
           </div>
           <div className="hidden sm:block text-left">
             <span className="text-xs font-medium text-slate-200 block leading-tight">
@@ -145,13 +150,33 @@ export function Header() {
           <ChevronDown className={`hidden sm:block w-3.5 h-3.5 text-slate-500 transition-transform ${accountOpen ? 'rotate-180' : ''}`} />
         </button>
 
-        {accountOpen && (
-          <div className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-2xl border border-[#242b3d] bg-[#11141c] p-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
-            <div className="border-b border-[#1c2230] px-3 py-2.5"><p className="truncate text-xs font-semibold text-white">{user.full_name}</p><p className="truncate text-[10px] text-slate-500">{user.email}</p></div>
-            <Link href="/settings" onClick={() => setAccountOpen(false)} className="mt-1 flex items-center gap-2 rounded-xl px-3 py-2 text-xs text-slate-300 hover:bg-[#141824] hover:text-white"><Settings className="w-3.5 h-3.5" /> Account settings</Link>
-            <button onClick={handleSignOut} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs text-red-300 hover:bg-red-500/10"><LogOut className="w-3.5 h-3.5" /> Sign out</button>
-          </div>
-        )}
+        <AnimatePresence>
+          {accountOpen && (
+            <motion.div
+              id="account-menu"
+              role="menu"
+              initial={{ opacity: 0, y: -8, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.97 }}
+              transition={{ duration: 0.16, ease: 'easeOut' }}
+              className="absolute right-0 top-[calc(100%+10px)] z-[60] w-[min(18rem,calc(100vw-1rem))] overflow-hidden rounded-2xl border border-[#29334a] bg-[#10131d]/98 p-2 shadow-[0_18px_50px_rgba(0,0,0,0.65),0_0_28px_rgba(239,68,68,0.08)] backdrop-blur-xl"
+            >
+              <div className="mb-1 rounded-xl border border-white/[0.05] bg-[#0b0e15] px-3.5 py-3">
+                <p className="truncate text-sm font-semibold text-white">{user.full_name}</p>
+                <p className="mt-0.5 truncate text-[11px] text-slate-400">{user.email || 'Signed-in RECALL operator'}</p>
+              </div>
+              <Link href="/settings" role="menuitem" onClick={() => setAccountOpen(false)} className="group/menu flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-[#171d2b] hover:text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-500/10 text-slate-400 transition-colors group-hover/menu:bg-slate-400/15 group-hover/menu:text-white"><Settings className="h-3.5 w-3.5" /></span>
+                <span>Account settings</span>
+              </Link>
+              <div className="my-1.5 border-t border-[#20283a]" />
+              <button role="menuitem" onClick={handleSignOut} disabled={isSigningOut} className="group/menu flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-red-300 transition-colors hover:bg-red-500/10 hover:text-red-200 disabled:cursor-wait disabled:opacity-60">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/10 text-red-400 transition-colors group-hover/menu:bg-red-500/20"><LogOut className={`h-3.5 w-3.5 ${isSigningOut ? 'animate-pulse' : ''}`} /></span>
+                <span>{isSigningOut ? 'Signing out…' : 'Sign out'}</span>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );
