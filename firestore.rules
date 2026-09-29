@@ -1,0 +1,11 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // RECALL writes user profiles through the Firebase Admin SDK only.
+    // Admin SDK requests bypass these rules, while browser clients have no direct access.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

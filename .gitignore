@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
 
 # next.js
 /.next/
@@ -32,6 +34,18 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+
+# Local development data and visual test captures
+/.recall-data/
+/.recall_db/
+/scratch/
+/action_probe_toast.png
+/authenticated_dashboard_animated.png
+/dashboard_animated_preview.png
+/dashboard_loading_shimmer.png
+/filter_critical_incidents.png
+/loading_shimmer_active.png
+/tests/screenshots/
 
 # vercel
 .vercel
