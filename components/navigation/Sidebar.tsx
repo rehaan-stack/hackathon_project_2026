@@ -202,12 +202,12 @@ export function Sidebar() {
       {/* Logout Confirmation Modal with smooth animations */}
       {showLogoutModal && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget && !isLoggingOut) setShowLogoutModal(false);
           }}
         >
-          <div className="w-full max-w-lg bg-[#0d1017] border border-[#222a3d] rounded-2xl p-7 sm:p-8 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_50px_rgba(239,68,68,0.18)] space-y-6 animate-in zoom-in-95 duration-200">
+          <div className="isolate w-full max-w-lg overflow-hidden rounded-2xl border border-[#222a3d] bg-[#0d1017] p-7 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_50px_rgba(239,68,68,0.18)] space-y-6 animate-in zoom-in-95 duration-200 sm:p-8">
             {/* Header Icon + Titles */}
             <div className="flex items-start gap-4 sm:gap-5">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/20 to-rose-600/10 border border-red-500/30 flex items-center justify-center text-red-400 flex-shrink-0 shadow-lg shadow-red-950/50">
@@ -224,7 +224,7 @@ export function Sidebar() {
             </div>
 
             {/* Action Buttons with increased size and smooth transitions */}
-            <div className="flex items-center justify-end gap-3.5 pt-3 border-t border-[#1a2130]">
+            <div className="relative z-10 flex items-center justify-end gap-3.5 overflow-hidden border-t border-[#1a2130] pt-3">
               <button
                 type="button"
                 onClick={() => setShowLogoutModal(false)}
@@ -238,7 +238,7 @@ export function Sidebar() {
                 type="button"
                 onClick={handleConfirmLogout}
                 disabled={isLoggingOut}
-                className="flex items-center gap-2.5 px-7 py-3 rounded-xl bg-gradient-to-r from-red-600 via-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white text-sm font-semibold shadow-xl shadow-red-950/70 hover:shadow-red-600/30 transition-all duration-200 cursor-pointer disabled:opacity-50"
+                className="relative isolate flex items-center gap-2.5 overflow-hidden rounded-xl bg-gradient-to-r from-red-600 via-red-600 to-rose-700 px-7 py-3 text-sm font-semibold text-white shadow-xl shadow-red-950/70 transition-all duration-200 hover:from-red-500 hover:to-rose-600 hover:shadow-red-600/30 cursor-pointer disabled:opacity-50"
               >
                 {isLoggingOut ? (
                   <>
